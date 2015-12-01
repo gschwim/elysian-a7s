@@ -1,0 +1,5 @@
+venv
+*.pyc
+*.log
+old
+tmp*
