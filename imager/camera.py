@@ -5,6 +5,11 @@ import time
 
 LOGFILE = open('./logfile.log', 'w')
 
+def housekeeping():
+    # get rid of any the capt0000.arw
+    call(['rm', 'capt0000.arw'], stdout=LOGFILE, stderr=subprocess.STDOUT)
+
+
 def cam_state():
     # Find settings like present ISO, shutterspeed, etc
     present_iso = subprocess.check_output(['gphoto2', '--get-config', 'iso']).splitlines()[2].split(':')[1].strip()
@@ -21,13 +26,25 @@ def cam_setup(iso):
         call(['gphoto2', '--set-config', 'iso=%s' % iso], stdout=LOGFILE, stderr=subprocess.STDOUT)
 
 def cam_init():
-    # Initialize the camera. First, kill PTPCamera that always starts on OSX
-    # because it won't let us bind to the port. Next, tell the camera we're here by
-    # asking it some information about itself.
     # TODO - need error handling for these items
     # TODO - need an efficient way of redirecting the output of these. Maybe to a logfile?
+
+    # First, kill PTPCamera that always starts on OSX
+    # because it won't let us bind to the port. Next, tell the camera we're here by
+    # asking it some information about itself.
     call(['killall', '-9', 'PTPCamera'], stdout=LOGFILE, stderr=subprocess.STDOUT)
+
+    # Init the camera. It's slow, can't figure out why. Works fast on linux though.
     cam_init = call(['gphoto2', '--auto-detect', '--summary'], stdout=LOGFILE, stderr=subprocess.STDOUT)
+
+    # Clean up any files that might be in the cache on the camera
+    # If the camera is exposed, shutter closed but file not downloaded it can throw things off
+    # Do it 2x just in case...
+    for x in range(2):
+        call(['gphoto2', '--set-config', 'bulb=0', '--wait-event-and-download=5s'],
+             stdout=LOGFILE, stderr=subprocess.STDOUT)
+        housekeeping()
+
     click.echo('Camera initialized')
 
 def capture(length, count, img_prefix, iteration):
