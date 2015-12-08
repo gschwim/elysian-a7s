@@ -3,4 +3,4 @@ venv
 *.log
 old
 tmp*
-*.egg
+*.egg-info

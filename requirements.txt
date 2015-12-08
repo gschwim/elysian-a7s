@@ -1,3 +1,0 @@
-click==6.2
-Imager==0.1
-wheel==0.24.0
