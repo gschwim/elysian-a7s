@@ -20,10 +20,10 @@ class SetupDevelop(develop):
         self.spawn(('pip', 'install', '--upgrade', '--requirement', 'requirements-dev.txt'))
 
 setup(
-    name='Imager',
+    name='Elysium',
     version='0.1',
     packages=[
-        'imager'
+        'elysium'
     ],
     install_requires=[
         'click==6.2',
@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'imager=imager.cli:cli'
+            'elysium=imager.cli:cli'
         ]
     },
     cmdclass={
