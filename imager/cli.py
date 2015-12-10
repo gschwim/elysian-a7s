@@ -1,6 +1,34 @@
 import click
-
+from cmd import Cmd
 from imager import camera
+
+def setup():
+    # setup for the run
+    # We've got some stuff that takes time here - gphoto2/camera interaction can be, uh, slow
+    # so let's be nice and show as progress bar.... :)
+    # TODO - yeah, I'm lazy
+
+    click.echo('Setting things up. Standby....')
+    # the iterator for below
+    iteration = 1  # we start at 1
+
+    # init the camera
+    if not no_init:
+        camera.cam_init()
+
+    # basic housekeeping
+    camera.housekeeping()
+
+    # show the camera state
+    present_iso = camera.cam_state()
+
+    # set the camera as we'd like it
+    camera.cam_setup(iso)
+
+    # verify the camera state
+    present_iso = camera.cam_state()
+
+
 
 @click.group()
 def cli():
@@ -54,4 +82,37 @@ def image(count, length, iso, img_prefix, no_init):
         # mv_capture(img_prefix, iteration)
         iteration = iteration + 1
 
-# also need to handle the files after written
+@cli.command()
+#@click.option('--capture', help="HELP!")
+def shell():
+    """Engages shell mode. This is good."""
+
+    class shell(Cmd):
+        ### TODO - shouldn't this be in a module?
+
+        def __init__(self):
+            Cmd.__init__(self)
+            self.prompt = '-+>'
+            self.intro = "Imager interactive CLI ready..."
+
+        def do_help(self, args):
+            if len(args) == 0:
+                name = 'no args'
+            else:
+                name = args
+            print "result is: %s" % name
+
+        def do_quit(self, args):
+            """Quits the session"""
+            print "We're done..."
+            return True
+
+    ### Need to get things set up first!
+
+
+    ### Call the class, start the console
+    console = shell().cmdloop()
+
+# TODO - also need to handle the files after written
+
+
