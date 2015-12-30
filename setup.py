@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'elysium=imager.cli:cli'
+            'elysium=cli.cli:cli'
         ]
     },
     cmdclass={
