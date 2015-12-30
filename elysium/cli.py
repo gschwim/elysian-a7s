@@ -1,6 +1,6 @@
 import click
 from cmd import Cmd
-from imager import camera
+from elysium import camera
 
 def setup():
     # setup for the run
