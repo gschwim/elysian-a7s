@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'elysium=cli.cli:cli'
+            'elysium=cli:cli'
         ]
     },
     cmdclass={
