@@ -46,6 +46,8 @@ def cli():
               help='Prefix which image filenames will be based on. Default is "capt"')
 @click.option('--no-init', '-ni', is_flag=True,
               help='Don\'t try to init the camera. Only use when the camera is already connected.')
+@click.option('--stack', '-s', is_flag=True,
+    help='Stack each image live as it comes in.')
 def image(count, length, iso, img_prefix, no_init):
     """Automates bulb image captures using gphoto2 and libgphoto."""
 
