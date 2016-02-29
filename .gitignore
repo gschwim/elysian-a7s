@@ -4,3 +4,4 @@ venv
 old
 tmp*
 *.egg-info
+*.npy

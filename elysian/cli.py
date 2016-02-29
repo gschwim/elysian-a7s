@@ -1,7 +1,7 @@
 import click
 from cmd import Cmd
-from elysium import camera
-from elysium import stacker
+from elysian import camera
+from elysian import stacker
 
 def setup():
     # setup for the run

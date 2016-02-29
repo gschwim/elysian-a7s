@@ -20,10 +20,10 @@ class SetupDevelop(develop):
         self.spawn(('pip', 'install', '--upgrade', '--requirement', 'requirements-dev.txt'))
 
 setup(
-    name='Elysium',
+    name='Elysian',
     version='0.1',
     packages=[
-        'elysium'
+        'elysian'
     ],
     install_requires=[
         'click==6.2',
@@ -31,7 +31,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'elysium=elysium.cli:cli'
+            'elysian=elysian.cli:cli'
         ]
     },
     cmdclass={
