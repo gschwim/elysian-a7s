@@ -28,6 +28,9 @@ def stacker(img_prefix, iteration):
         # write out the first stacked image
         outImg = Image.fromarray(imgArray.astype('uint8'))
         outImg.save('./output/stacked_%s.tif' % iteration)
+
+        #clean up
+        call(['rm', ppmfile])
     else:
 		#open the array image
         imgArray = np.load('nparray.npy')
@@ -47,9 +50,9 @@ def stacker(img_prefix, iteration):
         outImg.save('./output/stacked_%s.tif' % iteration)
 
         # clean up ppm files to save disk space
-        call(['rm', '*.ppm'])
+        call(['rm', ppmfile])
 
-		
-
+def cleanup():
+    call(['rm', 'nparray.npy'])
 
 

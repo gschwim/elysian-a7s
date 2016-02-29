@@ -5,3 +5,5 @@ old
 tmp*
 *.egg-info
 *.npy
+*.arw
+*.ppm

@@ -90,6 +90,8 @@ def image(count, length, iso, img_prefix, no_init, stack, outdir, outfile):
         if stack:
             stacker.stacker(img_prefix, iteration)
         iteration = iteration + 1
+    if stack:
+        stacker.cleanup()
 
 @cli.command()
 #@click.option('--capture', help="HELP!")
