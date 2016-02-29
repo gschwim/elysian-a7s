@@ -56,7 +56,7 @@ def capture(length, count, img_prefix, iteration):
             time.sleep(0.1)
         call(['gphoto2', '--set-config', 'bulb=0', '--wait-event-and-download=5s'],
              stdout=LOGFILE, stderr=subprocess.STDOUT)
-        mv_capture(img_prefix, iteration)
+        # DELETE THIS LINE - mv_capture(img_prefix, iteration)
 
 
 def mv_capture(img_prefix, iteration):

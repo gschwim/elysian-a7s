@@ -1,6 +1,7 @@
 import click
 from cmd import Cmd
 from elysium import camera
+from elysium import stacker
 
 def setup():
     # setup for the run
@@ -48,7 +49,11 @@ def cli():
               help='Don\'t try to init the camera. Only use when the camera is already connected.')
 @click.option('--stack', '-s', is_flag=True,
     help='Stack each image live as it comes in.')
-def image(count, length, iso, img_prefix, no_init):
+@click.option('--outdir', '-od',
+    help="Directory that the stacked image will be output to.")
+@click.option('--outfile', '-of',
+    help="Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to pre
+def image(count, length, iso, img_prefix, no_init, stack, outdir, outfile):
     """Automates bulb image captures using gphoto2 and libgphoto."""
 
     # setup for the run
@@ -81,7 +86,9 @@ def image(count, length, iso, img_prefix, no_init):
     while count >= iteration:
         # click.echo('Capturing image #:%d of %d' % (iteration, count))
         camera.capture(length, count, img_prefix, iteration)
-        # mv_capture(img_prefix, iteration)
+        camera.mv_capture(img_prefix, iteration)
+        if stack:
+            stacker.stacker(img_prefix, iteration)
         iteration = iteration + 1
 
 @cli.command()
@@ -115,6 +122,16 @@ def shell():
     ### Call the class, start the console
     console = shell().cmdloop()
 
-# TODO - also need to handle the files after written
+##############
+@cli.command()
+@click.option('--outdir', '-od', required=True,
+    help="Directory that the stacked image will be output to.")
+@click.option('--outfile', '-of',
+    help="Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to prevent overwriting
+def stack():
+    """Watched folder will be stacked as images come in."""
+    pass
+
+# TODO - also need to handle the files after written <--what did I mean by this?
 
 
