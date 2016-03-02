@@ -18,7 +18,9 @@ def stacker(img_prefix, iteration):
     # -o 2 sRGB color space
     # -q 1 use VNG interpolation
     # -t 0 do not flip the image based on orientation data in the exif
-    call(['dcraw', '-w', '-g', '2.4', '12.92', '-o', '2', '-q', '1', '-t', '0', infile])
+    #call(['dcraw', '-w', '-g', '2.4', '12.92', '-o', '2', '-q', '1', '-t', '0', infile])
+    call(['dcraw', '-W', '-g', '1', '1', '-o', '2', '-q', '1', '-t', '0', infile])
+
 
     if iteration == 1:
     	# create the array, save it for subsequent use
