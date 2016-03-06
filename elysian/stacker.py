@@ -1,13 +1,13 @@
-# dcraw -W -g 1 1 -o 2 -q 1 seems to work
-# but we should correct white balance on the stack at the bottom of this script
-
-
 from PIL import Image
 import glob
 import numpy as np
 import time
 import os
 from subprocess import call
+
+def rawdecode(img):
+    call(['dcraw', '-o', '0', '-r', '1', '1', '1', '1', '-q', '1', '-t', '0', '-k', '0', '-H', '1', '-T', img])
+
 
 def stacker(img_prefix, iteration):
     infile = '%s%d.arw' % (img_prefix,iteration)
@@ -60,5 +60,45 @@ def stacker(img_prefix, iteration):
 
 def cleanup():
     call(['rm', 'nparray.npy'])
+
+def dirstacker(img, iteration, outdir, stack_prefix):
+
+    arrayName = '%s/%s.npy' % (outdir, stack_prefix)
+    temptiff = '%s.tiff' % (img.split('.')[0])
+    stackfile = '%s/%s_%s.tiff' % (outdir, stack_prefix, iteration)
+    rawdecode(img)
+    # check to see if stack is started, and if so, use it
+    if not os.path.exists(arrayName):
+        imgArray = np.asarray(Image.open(temptiff))
+        imgArray = imgArray.astype('uint32')
+        np.save(arrayName, imgArray)
+        outImg = Image.fromarray(imgArray.astype('uint8'))
+        outImg.save(stackfile)
+        call(['rm', temptiff])
+        # convert img to tiff
+    else:
+        #open the array
+        imgArray = np.load(arrayName)
+
+        #Open the image, prep to add to the array
+        newImage = np.asarray(Image.open(temptiff))
+        newImage = newImage.astype('uint32')
+
+        # add the image to the array and save it
+        imgArray = imgArray + newImage
+        np.save(arrayName, imgArray)
+
+        # average it
+        imgArray = imgArray/iteration
+
+        # write the stacked image
+        outImg = Image.fromarray(imgArray.astype('uint8'))
+        outImg.save(stackfile)
+
+        #cleanup
+        call(['rm', temptiff])
+
+
+
 
 

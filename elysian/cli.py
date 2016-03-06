@@ -1,5 +1,7 @@
 import click
 from cmd import Cmd
+import glob
+import os
 from elysian import camera
 from elysian import stacker
 
@@ -8,6 +10,7 @@ def setup():
     # We've got some stuff that takes time here - gphoto2/camera interaction can be, uh, slow
     # so let's be nice and show as progress bar.... :)
     # TODO - yeah, I'm lazy
+    # TODO - is this even needed anymore? Should be handled in the 'image' subcommand
 
     click.echo('Setting things up. Standby....')
     # the iterator for below
@@ -50,10 +53,10 @@ def cli():
 @click.option('--stack', '-s', is_flag=True,
     help='Stack each image live as it comes in.')
 @click.option('--outdir', '-od',
-    help="Directory that the stacked image will be output to.")
-@click.option('--outfile', '-of',
-    help="Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to pre
-def image(count, length, iso, img_prefix, no_init, stack, outdir, outfile):
+    help="SHIM - Directory that the stacked image will be output to.")
+@click.option('--stack_prefix', '-sp',
+    help="SHIM - Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to pre
+def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
     """Automates bulb image captures using gphoto2 and libgphoto."""
 
     # setup for the run
@@ -126,14 +129,30 @@ def shell():
 
 ##############
 @cli.command()
+@click.option('--live', '-l', is_flag=True,
+    help="Watch the present folder, stack live.")
 @click.option('--outdir', '-od', required=True,
     help="Directory that the stacked image will be output to.")
-@click.option('--outfile', '-of',
-    help="Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to prevent overwriting
-def stack():
-    """Watched folder will be stacked as images come in."""
-    pass
+@click.option('--stack_prefix', '-sp', default="stacked",
+    help="Filename for the stacked image. Default is stack.tiff") # TODO - set a time/date filename to prevent overwriting
+def stack(live, outdir, stack_prefix):
+    """Folder will be stacked as images come in."""
+    iteration = 1
+    # check to see if outdir exists
+    if not os.path.isdir(outdir):
+        os.makedirs(outdir)
 
-# TODO - also need to handle the files after written <--what did I mean by this?
+    if live:
+        click.echo('SHIM - will watch and live stack the pwd.')
+    else:
+        imgList = glob.glob('*.arw')
+
+    # get them stacked one by one
+        for img in imgList:
+            click.echo('Stacking %s' % img)
+            stacker.dirstacker(img, iteration, outdir, stack_prefix)
+            iteration = iteration + 1
+
+
 
 
