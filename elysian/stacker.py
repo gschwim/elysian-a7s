@@ -12,6 +12,7 @@ from subprocess import call
 def stacker(img_prefix, iteration):
     infile = '%s%d.arw' % (img_prefix,iteration)
     ppmfile = '%s%d.ppm' % (img_prefix,iteration)
+    tifffile = '%s%d.tiff' % (img_prefix, iteration)
     # dcraw use:
     # -w = use in camera white balance
     # -g 2.4 12.92 - sRGB gamma curve applied
@@ -19,25 +20,28 @@ def stacker(img_prefix, iteration):
     # -q 1 use VNG interpolation
     # -t 0 do not flip the image based on orientation data in the exif
     #call(['dcraw', '-w', '-g', '2.4', '12.92', '-o', '2', '-q', '1', '-t', '0', infile])
-    call(['dcraw', '-W', '-g', '1', '1', '-o', '2', '-q', '1', '-t', '0', infile])
+    #call(['dcraw', '-W', '-g', '1', '1', '-o', '2', '-q', '1', '-t', '0', infile])
+    # PixInsight Method - best to use tiff (lower SNR), -4 won't work with PIL, 8 bit output seems to be OK.
+    call(['dcraw', '-o', '0', '-r', '1', '1', '1', '1', '-q', '1', '-t', '0', '-k', '0', '-H', '1', '-T', infile])
+
 
 
     if iteration == 1:
     	# create the array, save it for subsequent use
-        imgArray = np.asarray(Image.open(ppmfile))
+        imgArray = np.asarray(Image.open(tifffile))
         imgArray = imgArray.astype('uint32')
         np.save('nparray.npy', imgArray)
         # write out the first stacked image
         outImg = Image.fromarray(imgArray.astype('uint8'))
-        outImg.save('./output/stacked_%s.tif' % iteration)
+        outImg.save('./output/stacked_%s.tiff' % iteration)
 
         #clean up
-        call(['rm', ppmfile])
+        call(['rm', tifffile])
     else:
 		#open the array image
         imgArray = np.load('nparray.npy')
 		#open the new image to be added
-        newImage = np.asarray(Image.open(ppmfile))
+        newImage = np.asarray(Image.open(tifffile))
         newImage = newImage.astype('uint32')
 
 		#add the new image to the array and store the array
@@ -49,10 +53,10 @@ def stacker(img_prefix, iteration):
 
 		#output the stacked image
         outImg = Image.fromarray(imgArray.astype('uint8'))
-        outImg.save('./output/stacked_%s.tif' % iteration)
+        outImg.save('./output/stacked_%s.tiff' % iteration)
 
         # clean up ppm files to save disk space
-        call(['rm', ppmfile])
+        call(['rm', tifffile])
 
 def cleanup():
     call(['rm', 'nparray.npy'])
