@@ -34,6 +34,9 @@ def setup():
 
 
 
+######### BEGIN WORKFLOWS ##########
+
+
 @click.group()
 def cli():
     pass
@@ -53,20 +56,31 @@ def cli():
 @click.option('--stack', '-s', is_flag=True,
     help='Stack each image live as it comes in.')
 @click.option('--outdir', '-od',
-    help="SHIM - Directory that the stacked image will be output to.")
+    help="Directory that the stacked image will be output to. Defaults to --image-prefix.")
 @click.option('--stack_prefix', '-sp',
-    help="SHIM - Filename for the stacked image. Default is stack.tif") # TODO - set a time/date filename to pre
+    help="File prefix for the stacked images. Defaults to --image-prefix.")
 def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
     """Automates bulb image captures using gphoto2 and libgphoto."""
 
     # setup for the run
     # We've got some stuff that takes time here - gphoto2/camera interaction can be, uh, slow
     # so let's be nice and show as progress bar.... :)
-    # TODO - yeah, I'm lazy
 
     click.echo('Setting things up. Standby....')
+
+    #initialize a few things
+
     # the iterator for below
     iteration = 1  # we start at 1
+
+    # set up for the live stack if that's what we're doing
+    if stack:
+        if not stack_prefix:
+            stack_prefix = img_prefix
+        if not outdir:
+            outdir = img_prefix
+        if not os.path.isdir(outdir):
+            os.makedirs(outdir)
 
     # init the camera
     if not no_init:
@@ -87,11 +101,11 @@ def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
 
     click.echo('Subs: %dx%d seconds @ ISO%s' % (count, length, present_iso))
     while count >= iteration:
-        # click.echo('Capturing image #:%d of %d' % (iteration, count))
+        img = '%s%d.arw' % (img_prefix, iteration)
         camera.capture(length, count, img_prefix, iteration)
         camera.mv_capture(img_prefix, iteration)
         if stack:
-            stacker.stacker(img_prefix, iteration)
+            stacker.stacker(img, iteration, outdir, stack_prefix)
         iteration = iteration + 1
     if stack:
         stacker.cleanup()
@@ -150,7 +164,7 @@ def stack(live, outdir, stack_prefix):
     # get them stacked one by one
         for img in imgList:
             click.echo('Stacking %s' % img)
-            stacker.dirstacker(img, iteration, outdir, stack_prefix)
+            stacker.stacker(img, iteration, outdir, stack_prefix)
             iteration = iteration + 1
 
 

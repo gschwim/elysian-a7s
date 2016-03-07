@@ -9,7 +9,7 @@ def rawdecode(img):
     call(['dcraw', '-o', '0', '-r', '1', '1', '1', '1', '-q', '1', '-t', '0', '-k', '0', '-H', '1', '-T', img])
 
 
-def stacker(img_prefix, iteration):
+def OLDstacker(img_prefix, iteration):
     infile = '%s%d.arw' % (img_prefix,iteration)
     ppmfile = '%s%d.ppm' % (img_prefix,iteration)
     tifffile = '%s%d.tiff' % (img_prefix, iteration)
@@ -61,7 +61,7 @@ def stacker(img_prefix, iteration):
 def cleanup():
     call(['rm', 'nparray.npy'])
 
-def dirstacker(img, iteration, outdir, stack_prefix):
+def stacker(img, iteration, outdir, stack_prefix):
 
     arrayName = '%s/%s.npy' % (outdir, stack_prefix)
     temptiff = '%s.tiff' % (img.split('.')[0])
@@ -75,7 +75,6 @@ def dirstacker(img, iteration, outdir, stack_prefix):
         outImg = Image.fromarray(imgArray.astype('uint8'))
         outImg.save(stackfile)
         call(['rm', temptiff])
-        # convert img to tiff
     else:
         #open the array
         imgArray = np.load(arrayName)
