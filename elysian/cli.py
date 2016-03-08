@@ -159,7 +159,7 @@ def stack(live, outdir, stack_prefix):
     if live:
         click.echo('SHIM - will watch and live stack the pwd.')
     else:
-        imgList = glob.glob('*.arw')
+        imgList = glob.glob('*.[aA][rR][wW]')
 
     # get them stacked one by one
         for img in imgList:
