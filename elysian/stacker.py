@@ -8,6 +8,9 @@ from subprocess import call
 def rawdecode(img):
     call(['dcraw', '-o', '0', '-r', '1', '1', '1', '1', '-q', '1', '-t', '0', '-k', '0', '-H', '1', '-T', img])
 
+def cal_flat(imgArray, mflat):
+    pass
+
 
 def OLDstacker(img_prefix, iteration):
     infile = '%s%d.arw' % (img_prefix,iteration)
@@ -61,7 +64,7 @@ def OLDstacker(img_prefix, iteration):
 def cleanup():
     call(['rm', 'nparray.npy'])
 
-def stacker(img, iteration, outdir, stack_prefix):
+def stacker(img, iteration, outdir, stack_prefix, mflat):
 
     arrayName = '%s/%s.npy' % (outdir, stack_prefix)
     temptiff = '%s.tiff' % (img.split('.')[0])
@@ -71,6 +74,8 @@ def stacker(img, iteration, outdir, stack_prefix):
     if not os.path.exists(arrayName):
         imgArray = np.asarray(Image.open(temptiff))
         imgArray = imgArray.astype('uint32')
+        if mflat:
+            cal_flat(imgArray, mflat)
         np.save(arrayName, imgArray)
         outImg = Image.fromarray(imgArray.astype('uint8'))
         outImg.save(stackfile)

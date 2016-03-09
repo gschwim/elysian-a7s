@@ -55,11 +55,13 @@ def cli():
               help='Don\'t try to init the camera. Only use when the camera is already connected.')
 @click.option('--stack', '-s', is_flag=True,
     help='Stack each image live as it comes in.')
+@click.option('--mflat', '-mf',
+    help='Location of master flat to be used for image calibration.')
 @click.option('--outdir', '-od',
     help="Directory that the stacked image will be output to. Defaults to --image-prefix.")
 @click.option('--stack_prefix', '-sp',
     help="File prefix for the stacked images. Defaults to --image-prefix.")
-def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
+def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix, mflat):
     """Automates bulb image captures using gphoto2 and libgphoto."""
 
     # setup for the run
@@ -81,6 +83,9 @@ def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
             outdir = img_prefix
         if not os.path.isdir(outdir):
             os.makedirs(outdir)
+        if not os.path.exists(mflat):
+            click.echo('Can\'t find master flat %s.' % mflat)
+            quit()
 
     # init the camera
     if not no_init:
@@ -105,7 +110,7 @@ def image(count, length, iso, img_prefix, no_init, stack, outdir, stack_prefix):
         camera.capture(length, count, img_prefix, iteration)
         camera.mv_capture(img_prefix, iteration)
         if stack:
-            stacker.stacker(img, iteration, outdir, stack_prefix)
+            stacker.stacker(img, iteration, outdir, stack_prefix, mflat)
         iteration = iteration + 1
     if stack:
         stacker.cleanup()
@@ -149,7 +154,7 @@ def shell():
     help="Directory that the stacked image will be output to.")
 @click.option('--stack_prefix', '-sp', default="stacked",
     help="Filename for the stacked image. Default is stack.tiff") # TODO - set a time/date filename to prevent overwriting
-def stack(live, outdir, stack_prefix):
+def stack(live, outdir, stack_prefix, mflat):
     """Folder will be stacked as images come in."""
     iteration = 1
     # check to see if outdir exists
